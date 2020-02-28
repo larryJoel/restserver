@@ -3,6 +3,9 @@
 require('./config/config');
 //librerias necesarias para que funcione el server
 const express = require('express');
+//libreria de la base de datos mongodb
+const mongoose = require('mongoose');
+
 const app = express();
 const bodyParser = require('body-parser');
 // configuración del bodyParser para trabajar 
@@ -13,49 +16,24 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
- // función que envia el mensaje de respuesta
- // a la petición GET
- // usando get en el .app
- ////---------------OJO-------------
-// app.get('/usuario', function (req, res) {
-//   res.send('get usuario')
-// })
-//--------------------------------------
- // función que envia el mensaje de respuesta
- // a la petición GET (consultar)
- // usando json en el .app
+app.use( require('./routes/usuario'));
+ 
+mongoose.connect( process.env.URLDB, {
+  useNewUrlParser: true,
+  useCreateIndex:true,
+  useUnifiedTopology: true
+},(err,res)=>{
 
-app.get('/usuario', function (req, res) {
-  res.json('get usuario')
+  if(err)throw err;
+  console.log('base de datos ONLINE');
 })
-//petición post (crear)
-app.post('/usuario', function (req, res) {
-  let body = req.body;
-  if (body.nombre === undefined) {
-    res.status(400).json({
-      ok: false,
-      mensaje:'El nombre es necesario'
-    });
-  }else{
-    res.json({
-    persona:body});
-  }
-});
-//petición Put (actualizar)
-app.put('/usuario/:id', function (req, res) {
-  let id = req.params.id;
-  res.json({
-      id
-    });
-})
-//petición pash (actualizar)
-app.patch('/usuario', function (req, res) {
-  res.json('patch usuario')
-})
-//petición delete (borrar)
-app.delete('/usuario', function (req, res) {
-  res.json('delete usuario')
-})
+// await mongoose.connect('mongodb://localhost:27017/cafe', {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true
+// });
+
+
+
  //función que muestra en consola
  // el mensaje de conexion
 app.listen(process.env.PORT,()=>{
