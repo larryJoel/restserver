@@ -9,8 +9,8 @@ const Usuario = require('../models/usuario');
 //libreria de la base de datos mongodb
 const mongoose = require('mongoose');
 const app = express();
-
-
+//verificar token
+const { verificarToken, verificaAdmin_Role } = require('../middlewares/autenticacion');
 // función que envia el mensaje de respuesta
  // a la petición GET
  // usando get en el .app
@@ -23,7 +23,13 @@ const app = express();
  // a la petición GET (consultar)
  // usando json en el .app
 
- app.get('/usuario', function (req, res) {
+ app.get('/usuario', verificarToken,(req, res) => {
+
+  // return res.json({
+  //   usuario:req.usuario,
+  //   nombre: req.usuario.nombre,
+  //   email: req.usuario.email
+  // });
    
   let desde = req.query.desde || 0;
   let limite = req.query.limite || 5;
@@ -50,16 +56,14 @@ const app = express();
             });
 
             });
-            
-
           });
-
-
   })
 
 
   //petición post (crear)
-  app.post('/usuario', function (req, res) {
+  app.post('/usuario',[verificarToken,verificaAdmin_Role] , (req, res) => {
+    
+    
     let body = req.body;
 
     let usuario = new Usuario({
@@ -87,7 +91,7 @@ const app = express();
 
   });
   //petición Put (actualizar)
-  app.put('/usuario/:id', function (req, res) {
+  app.put('/usuario/:id', [verificarToken,verificaAdmin_Role],function (req, res) {
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'role','estado']);
 
@@ -110,13 +114,13 @@ const app = express();
 
 
   //petición pash (actualizar)
-  app.patch('/usuario', function (req, res) {
+  app.patch('/usuario', [verificarToken,verificaAdmin_Role], function (req, res) {
     res.json('patch usuario')
   });
 
 
   //petición delete (borrar fisicamente de la BD)
-  app.delete('/usuario/:id', function (req, res) {
+  app.delete('/usuario/:id',[verificarToken,verificaAdmin_Role], function (req, res) {
     
     let id= req.params.id;
     // Usuario.findByIdAndDelete(id, (err,usuarioBorrado)=>{
